@@ -7,33 +7,44 @@ GAME RULES:
 - The first player to reach 100 points on GLOBAL score wins the game
 */
 
-var scores, roundScore, activePlayer, gamePlaying;
+/* NEW RULES:
+1. A player looses his ENTIRE score when he rolls two 6 in a row. After that, it's the next player's turn.
+(Hint: Always save the previous dice roll in a separate variable)
+2. Add an input field to the HTML where players can set the winning score,
+so that they can change the predefined score of 100. (Hint: you can read that value with the .value property in JavaScript.
+This is a good oportunity to use google to figure this out :)
+3. Add another dice to the game, so that there are two dices now. The player looses his current score when one of them is a 1. (Hint: you will need CSS to position the second dice, so take a look at the CSS code for the first one.)
+*/
+
+var scores, roundScore, activePlayer, gamePlaying, previousDice;
 
 initGame();
 
-//document.querySelector('#current-' + activePlayer).textContent = dice;
-//document.querySelectior('#current-' + activePlayer).innerHTML = '<i>' + dice + '</i>';
-
 document.querySelector('.btn-roll').addEventListener('click', function() {
     if (gamePlaying) {
-
-        var dice = Math.floor(Math.random() * 6) + 1;
+        var currentDice = Math.floor(Math.random() * 6) + 1;
 
         var diceDOM = document.querySelector('.dice');
         diceDOM.style.display = 'block';
-        diceDOM.src = 'dice-' + dice + '.png';
-    
-        if (dice !== 1) {
-            roundScore += dice;
-            console.log('Player ' + activePlayer + ', you got '+ dice +'. Adding this points to your score');
-            document.querySelector('#current-' + activePlayer).textContent = roundScore;
-            //document.querySelector('#score-'+ activePlayer).textContent = roundScore;
-    
-        }else {
-            console.log('Player ' + activePlayer + ', you got '+ dice +'. So, you have lost all your points :(');
+        diceDOM.src = 'dice-' + currentDice + '.png';
+
+        console.log('Previous dice = ' + previousDice);
+        console.log('Current dice = ' + currentDice);
+
+        if (currentDice === 1) {
+            console.log('Player ' + activePlayer + ', you got '+ currentDice +'. So, you have lost all your points :(');
+            nextPlayer();
+        } else if (currentDice === 6 && previousDice === 6) {
+            console.log('Player ' + activePlayer + ', Your current dice point is '+ currentDice
+            + ', and your previous dice point is also ' + previousDice + '. So, you have lost all your points :(');
             nextPlayer();
         }
-
+        else {
+            roundScore += currentDice;
+            console.log('Player ' + activePlayer + ', you got '+ currentDice +'. Adding this points to your score');
+            document.querySelector('#current-' + activePlayer).textContent = roundScore;
+            previousDice = currentDice;
+        }
     }
 });
 
@@ -44,9 +55,9 @@ document.querySelector('.btn-hold').addEventListener('click', function() {
         console.log('Changing from player ' + activePlayer + ' To next player.');
         scores[activePlayer] += roundScore;
         document.querySelector('#score-' + activePlayer).textContent = scores[activePlayer];
-    
+
         //Check if user won the game
-    
+
         if (scores[activePlayer] >= 20) {
             console.log('Player ' + activePlayer + ' won the game!');
             document.querySelector('#name-'+ activePlayer).textContent = 'You won!';
@@ -61,10 +72,11 @@ document.querySelector('.btn-hold').addEventListener('click', function() {
     } 
 });
 
-//New game
+//When user starts a new game using New Game button
 document.querySelector('.btn-new').addEventListener('click', initGame);
 
 function nextPlayer() {
+    previousDice = 0;
     document.querySelector('.dice').style.display = 'none';
     activePlayer === 0 ? activePlayer = 1 : activePlayer = 0;
     roundScore = 0;
@@ -81,6 +93,7 @@ function initGame() {
     scores = [0,0];
     roundScore = 0;
     activePlayer = 0;
+    previousDice = 0;
 
     document.querySelector('.dice').style.display = 'none';
 
